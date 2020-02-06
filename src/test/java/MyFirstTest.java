@@ -1,6 +1,6 @@
 import org.junit.jupiter.api.Test;
 
-public class MyFirstClass {
+public class MyFirstTest {
 
     @Test
     public void firstTest() {
