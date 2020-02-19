@@ -8,8 +8,9 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
-public class TaskOne {
+public class TitlesCheck {
     private final By ARTICLE_TITLE = By.xpath(".//h1[contains(@class, 'headline__title')]");
     private final By ARTICLE_PAGE_TITLE = By.xpath(".//div[contains(@class, 'article-title')]//h1");
     private final By COMMENT_PAGE_LINK = By.xpath(".//button[contains(@class, 'input-read')]");
@@ -19,6 +20,7 @@ public class TaskOne {
     public void delfiSecondTitleTest() {
         System.setProperty("webdriver.chrome.driver", "c:/users/jevgenija.naidenko/ideaprojects/chromedriver.exe");
         WebDriver driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
         driver.get("http://rus.delfi.lv");
 
@@ -29,7 +31,7 @@ public class TaskOne {
         WebElement secondTitle = titleList.get(1);
 
         //Get and save this element text
-        String secondTitleText = secondTitle.getText();
+        String secondTitleText = secondTitle.getText().trim();
 
         //Click on this element
         secondTitle.click();
@@ -38,7 +40,7 @@ public class TaskOne {
         WebElement articleTitle = driver.findElement(ARTICLE_PAGE_TITLE);
 
         //Get and save this element text
-        String articleTitleText = articleTitle.getText();
+        String articleTitleText = articleTitle.getText().trim();
 
         //Find comment page link
         WebElement commentPageLink = driver.findElement(COMMENT_PAGE_LINK);
@@ -50,7 +52,7 @@ public class TaskOne {
         WebElement commentPageTitle = driver.findElement(COMMENT_PAGE_TITLE);
 
         //Article title text
-        String articleTitleTextCommentPage = commentPageTitle.getText();
+        String articleTitleTextCommentPage = commentPageTitle.getAttribute("textContent").trim();
 
         //Check
         Assertions.assertEquals(secondTitleText, articleTitleText, "Main page second article title and article page article title doesn't macth!");
