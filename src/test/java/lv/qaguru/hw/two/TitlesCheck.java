@@ -1,63 +1,52 @@
 package lv.qaguru.hw.two;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class TitlesCheck {
-    private final By ARTICLE_TITLE = By.xpath(".//h1[contains(@class, 'headline__title')]");
+
+    private static WebDriver driver;
+    private final By ARTICLE_TITLE = By.xpath("(//article)[2]//h1");
     private final By ARTICLE_PAGE_TITLE = By.xpath(".//div[contains(@class, 'article-title')]//h1");
     private final By COMMENT_PAGE_LINK = By.xpath(".//button[contains(@class, 'input-read')]");
     private final By COMMENT_PAGE_TITLE = By.xpath(".//div[@id='commentPlaceholderAnimation']//h1");
 
-    @Test
-    public void delfiSecondTitleTest() {
+    @BeforeAll
+    public static void setUp() {
         System.setProperty("webdriver.chrome.driver", "c:/users/jevgenija.naidenko/ideaprojects/chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
+        driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
+    }
+
+    @Test
+    public void delfiSecondTitleTest() {
         driver.get("http://rus.delfi.lv");
 
-        //Get elements list
-        List<WebElement> titleList = driver.findElements(ARTICLE_TITLE);
+        String secondTitleTextMainPage = driver.findElement(ARTICLE_TITLE).getText().trim();
+        driver.findElement(ARTICLE_TITLE).click();
 
-        //Find 2nd title element
-        WebElement secondTitle = titleList.get(1);
+        String articleTitleTextArticlePage = driver.findElement(ARTICLE_PAGE_TITLE).getText().trim();
+        Assertions.assertEquals(secondTitleTextMainPage, articleTitleTextArticlePage, "Main page second article title and article page article title doesn't match!");
 
-        //Get and save this element text
-        String secondTitleText = secondTitle.getText().trim();
+        driver.findElement(COMMENT_PAGE_LINK).click();
 
-        //Click on this element
-        secondTitle.click();
+        String articleTitleTextCommentPage = driver.findElement(COMMENT_PAGE_TITLE).getAttribute("textContent").trim();
 
-        //Find article's title element
-        WebElement articleTitle = driver.findElement(ARTICLE_PAGE_TITLE);
+        Assertions.assertEquals(secondTitleTextMainPage, articleTitleTextCommentPage, "Main page second article title doesn't match article title on comments page!");
+        Assertions.assertEquals(articleTitleTextCommentPage, articleTitleTextArticlePage, "Article page article title doesn't match article title on the comments page!");
 
-        //Get and save this element text
-        String articleTitleText = articleTitle.getText().trim();
+    }
 
-        //Find comment page link
-        WebElement commentPageLink = driver.findElement(COMMENT_PAGE_LINK);
-
-        //Click on this element
-        commentPageLink.click();
-
-        //Find comment page title
-        WebElement commentPageTitle = driver.findElement(COMMENT_PAGE_TITLE);
-
-        //Article title text
-        String articleTitleTextCommentPage = commentPageTitle.getAttribute("textContent").trim();
-
-        //Check
-        Assertions.assertEquals(secondTitleText, articleTitleText, "Main page second article title and article page article title doesn't macth!");
-        Assertions.assertEquals(secondTitleText, articleTitleTextCommentPage, "Main page second article title doesn't match article title on comments page!");
-        Assertions.assertEquals(articleTitleTextCommentPage, articleTitleText, "Article page article title doesn't match article title on the comments page!");
-
+    @AfterAll
+    public static void tearDown() {
+        driver.quit();
     }
 }

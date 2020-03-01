@@ -1,59 +1,89 @@
 package lv.qaguru.hw.two;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CommentCountCheck {
+
+    private static WebDriver driver;
     private final By COMMENT_COUNT_MAIN_PAGE = By.xpath("(//article)[2]//*[contains(@class,'comment-count')]");
     private final By ARTICLE_TITLE = By.xpath("(//article)[2]//h1");
     private final By COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE = By.xpath(".//div[contains(@class, 'article-title')]//a");
-    private final By COMMENT_COUNT_ARTICLE_PAGE_BOTTOM = By.xpath(".//div[contains(@class, 'top-actions')]//span[contains(@class, 'type-cnt')]");
-    private final By ALL_COMMENT_COMMENT_PAGE = By.xpath(".//div[contains(@class, 'top-actions')]//span[contains(@class, 'type-cnt')]");
+    private final By COMMENT_COUNT_PAGE_BOTTOM_FIRST = By.xpath("(//span[contains(@class, 'type-cnt')])[1]");
+    private final By COMMENT_COUNT_PAGE_BOTTOM_SECOND = By.xpath("(//span[contains(@class, 'type-cnt')])[2]");
 
-    @Test
-    public void delfiSecondTitleCommentCountTest() {
+    @BeforeAll
+    public static void setUp() {
         System.setProperty("webdriver.chrome.driver", "c:/users/jevgenija.naidenko/ideaprojects/chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
+        driver = new ChromeDriver();
         driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
         driver.manage().window().maximize();
+    }
+
+    @Test
+    public void delfiSecondTitleMainPageAndArticlePageCommentCountTest() {
         driver.get("http://rus.delfi.lv");
 
-        WebElement secondArticleCommentCountMain = driver.findElement(COMMENT_COUNT_MAIN_PAGE);
-        String secondArticleCommentCountValueMain = secondArticleCommentCountMain.getText().replace("(", "").replace(")", "").trim();
-        Integer secondArticleCommentCountMainIntValue = Integer.parseInt(secondArticleCommentCountValueMain);
+        String secondArticleCommentCountValueMainPage = driver.findElement(COMMENT_COUNT_MAIN_PAGE).getText().replaceAll("[()]", "");
+        Integer secondArticleCommentCountIntValueMainPage = Integer.parseInt(secondArticleCommentCountValueMainPage);
+        driver.findElement(ARTICLE_TITLE).click();
+
+        String commentCountValueInTitleArticlePage = driver.findElement(COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE).getText().replaceAll("[()]", "");
+        Integer commentCountIntValueArticlePage = Integer.parseInt(commentCountValueInTitleArticlePage);
+        Integer commentsCountIntValueArticlePageBottom = getCommentsCountPageBottom();
+
+        Assertions.assertEquals(secondArticleCommentCountIntValueMainPage, commentCountIntValueArticlePage, "Main page comments count and article pagecomments count after title doesn't match!");
+        Assertions.assertEquals(secondArticleCommentCountIntValueMainPage, commentsCountIntValueArticlePageBottom, "Main page comments count and comments count on article page bottom doesn't match!");
+
+    }
+
+    @Test
+    public void delfiSecondTitleMainPageAndArticleCommentPageCommentCountTest() {
+        driver.get("http://rus.delfi.lv");
+
+        String secondArticleCommentCountValueMainPage = driver.findElement(COMMENT_COUNT_MAIN_PAGE).getText().replaceAll("[()]", "");
+        Integer secondArticleCommentCountIntValueMainPage = Integer.parseInt(secondArticleCommentCountValueMainPage);
+        driver.findElement(COMMENT_COUNT_MAIN_PAGE).click();
+
+        Integer commentsCountIntValueCommentsPage = getCommentsCountPageBottom();
+
+        Assertions.assertEquals(secondArticleCommentCountIntValueMainPage, commentsCountIntValueCommentsPage, "Main page comments count and comments count on comments page doesn't match!");
+    }
+
+    @Test
+    public void delfiSecondTitleArticlePageAndArticleCommentPageCommentCountTest() {
+        driver.get("http://rus.delfi.lv");
 
         driver.findElement(ARTICLE_TITLE).click();
 
-        WebElement commentCountArticlePage = driver.findElement(COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE);
-        String commentCountInTitleValueArticlePage = commentCountArticlePage.getText().replace("(", "").replace(")", "");
-        Integer commentCountArticlePageIntValue = Integer.parseInt(commentCountInTitleValueArticlePage);
+        String commentCountValueInTitleArticlePage = driver.findElement(COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE).getText().replaceAll("[()]", "");
+        Integer commentCountIntValueArticlePage = Integer.parseInt(commentCountValueInTitleArticlePage);
+        Integer commentsCountIntValueArticlePageBottom = getCommentsCountPageBottom();
 
-        List<WebElement> commentCountListArticlePageBottom = driver.findElements(COMMENT_COUNT_ARTICLE_PAGE_BOTTOM);
-        WebElement unregisteredCommentCountArticlePageBottom = commentCountListArticlePageBottom.get(0);
-        WebElement registeredCommentCountArticlePageBottom = commentCountListArticlePageBottom.get(1);
-        String unregisteredClientsCommentCountValueArticlePage = unregisteredCommentCountArticlePageBottom.getText().replace("(", "").replace(")", "").trim();
-        String registeredClientsCommentCountValueArticlePage = registeredCommentCountArticlePageBottom.getText().replace("(", "").replace(")", "").trim();
-        Integer commentsCountArticlePageBottomIntValue = Integer.parseInt(unregisteredClientsCommentCountValueArticlePage) + Integer.parseInt(registeredClientsCommentCountValueArticlePage);
-        commentCountArticlePage.click();
+        driver.findElement(COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE).click();
 
-        List<WebElement> commentsListOnCommentPage = driver.findElements(ALL_COMMENT_COMMENT_PAGE);
-        WebElement unregisteredClientsCommentCount = commentsListOnCommentPage.get(0);
-        WebElement registeredClientsCommentCount = commentsListOnCommentPage.get(1);
-        String unregisteredClientsCommentCountValue = unregisteredClientsCommentCount.getText().replace("(", "").replace(")", "").trim();
-        String registeredClientsCommentCountValue = registeredClientsCommentCount.getText().replace("(", "").replace(")", "").trim();
-        Integer commentsCountCommentsPageIntValue = Integer.parseInt(unregisteredClientsCommentCountValue) + Integer.parseInt(registeredClientsCommentCountValue);
+        Integer commentsCountIntValueCommentsPage = getCommentsCountPageBottom();
 
-        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentCountArticlePageIntValue, "Main page comments count and article page comments count doesn't macth!");
-//        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentsCountCommentsPageIntValue, "Main page comments count and comments count after title on comments page doesn't match!");
-        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentsCountArticlePageBottomIntValue, "Main page comments count and comments count on comments page bottom doesn't match!");
-        Assertions.assertEquals(commentsCountCommentsPageIntValue, commentCountArticlePageIntValue, "Article page comments count and comments count on the comments page doesn't match");
-        Assertions.assertEquals(commentsCountCommentsPageIntValue, commentsCountArticlePageBottomIntValue, "Article page bottom comments count and comments count on the comments page doesn't match");
+        Assertions.assertEquals(commentsCountIntValueCommentsPage, commentCountIntValueArticlePage, "Article page comments count after title and comments count on the comments page doesn't match");
+        Assertions.assertEquals(commentsCountIntValueCommentsPage, commentsCountIntValueArticlePageBottom, "Article page bottom comments count and comments count on the comments page doesn't match");
+    }
+
+    private Integer getCommentsCountPageBottom() {
+        String unregisteredComments = driver.findElement(COMMENT_COUNT_PAGE_BOTTOM_FIRST).getText().replaceAll("[()]", "");
+        String registeredComments = driver.findElement(COMMENT_COUNT_PAGE_BOTTOM_SECOND).getText().replaceAll("[()]", "");
+        return Integer.parseInt(unregisteredComments) + Integer.parseInt(registeredComments);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        driver.quit();
     }
 }
+
