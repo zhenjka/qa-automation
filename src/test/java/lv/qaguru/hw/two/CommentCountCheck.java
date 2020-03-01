@@ -11,9 +11,10 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class CommentCountCheck {
-    private final By COMMENT_COUNT_ALL_ARTICLES_MAIN = By.xpath(".//a[contains(@class, 'comment-count')]");
-    private final By ARTICLE_TITLE = By.xpath(".//h1[contains(@class, 'headline__title')]");
-    private final By COMMENT_COUNT_ARTICLE_PAGE = By.xpath(".//div[contains(@class, 'article-title')]//a");
+    private final By COMMENT_COUNT_MAIN_PAGE = By.xpath("(//article)[2]//*[contains(@class,'comment-count')]");
+    private final By ARTICLE_TITLE = By.xpath("(//article)[2]//h1");
+    private final By COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE = By.xpath(".//div[contains(@class, 'article-title')]//a");
+    private final By COMMENT_COUNT_ARTICLE_PAGE_BOTTOM = By.xpath(".//div[contains(@class, 'top-actions')]//span[contains(@class, 'type-cnt')]");
     private final By ALL_COMMENT_COMMENT_PAGE = By.xpath(".//div[contains(@class, 'top-actions')]//span[contains(@class, 'type-cnt')]");
 
     @Test
@@ -24,53 +25,35 @@ public class CommentCountCheck {
         driver.manage().window().maximize();
         driver.get("http://rus.delfi.lv");
 
-        //Get comments count elements list
-        List<WebElement> commentsCountList = driver.findElements(COMMENT_COUNT_ALL_ARTICLES_MAIN);
+        WebElement secondArticleCommentCountMain = driver.findElement(COMMENT_COUNT_MAIN_PAGE);
+        String secondArticleCommentCountValueMain = secondArticleCommentCountMain.getText().replace("(", "").replace(")", "").trim();
+        Integer secondArticleCommentCountMainIntValue = Integer.parseInt(secondArticleCommentCountValueMain);
 
-        //Get 2nd comment count list element
-        WebElement secondArticleCommentCountMain = commentsCountList.get(1);
+        driver.findElement(ARTICLE_TITLE).click();
 
-        String secondArticleCommentCountValueMain = secondArticleCommentCountMain.getText().replace("(", "").replace(")", "");
+        WebElement commentCountArticlePage = driver.findElement(COMMENT_COUNT_ON_TITLE_ARTICLE_PAGE);
+        String commentCountInTitleValueArticlePage = commentCountArticlePage.getText().replace("(", "").replace(")", "");
+        Integer commentCountArticlePageIntValue = Integer.parseInt(commentCountInTitleValueArticlePage);
 
-        Integer secondArticleCommentCountMainIntegerValue = Integer.parseInt(secondArticleCommentCountValueMain);
-
-        //Get elements list
-        List<WebElement> titleList = driver.findElements(ARTICLE_TITLE);
-
-        //Find 2nd title element
-        WebElement secondTitle = titleList.get(1);
-
-        //Click on this element
-        secondTitle.click();
-
-        //Find article's title element
-        WebElement commentCountArticlePage = driver.findElement(COMMENT_COUNT_ARTICLE_PAGE);
-
-        String commentCountValueArticlePage = commentCountArticlePage.getText().replace("(", "").replace(")", "");
-
-        Integer commentCountArticlePageIntegerValue = Integer.parseInt(commentCountValueArticlePage);
-
-        //Click on this element
+        List<WebElement> commentCountListArticlePageBottom = driver.findElements(COMMENT_COUNT_ARTICLE_PAGE_BOTTOM);
+        WebElement unregisteredCommentCountArticlePageBottom = commentCountListArticlePageBottom.get(0);
+        WebElement registeredCommentCountArticlePageBottom = commentCountListArticlePageBottom.get(1);
+        String unregisteredClientsCommentCountValueArticlePage = unregisteredCommentCountArticlePageBottom.getText().replace("(", "").replace(")", "").trim();
+        String registeredClientsCommentCountValueArticlePage = registeredCommentCountArticlePageBottom.getText().replace("(", "").replace(")", "").trim();
+        Integer commentsCountArticlePageBottomIntValue = Integer.parseInt(unregisteredClientsCommentCountValueArticlePage) + Integer.parseInt(registeredClientsCommentCountValueArticlePage);
         commentCountArticlePage.click();
 
         List<WebElement> commentsListOnCommentPage = driver.findElements(ALL_COMMENT_COMMENT_PAGE);
-
         WebElement unregisteredClientsCommentCount = commentsListOnCommentPage.get(0);
-
         WebElement registeredClientsCommentCount = commentsListOnCommentPage.get(1);
+        String unregisteredClientsCommentCountValue = unregisteredClientsCommentCount.getText().replace("(", "").replace(")", "").trim();
+        String registeredClientsCommentCountValue = registeredClientsCommentCount.getText().replace("(", "").replace(")", "").trim();
+        Integer commentsCountCommentsPageIntValue = Integer.parseInt(unregisteredClientsCommentCountValue) + Integer.parseInt(registeredClientsCommentCountValue);
 
-        String unregisteredClientsCommentCountValue = unregisteredClientsCommentCount.getText().replace("(", "").replace(")", "");
-
-        String registeredClientsCommentCountValue = registeredClientsCommentCount.getText().replace("(", "").replace(")", "");
-
-        Integer commentsCountCommentsPageIntegerValue =  Integer.parseInt(unregisteredClientsCommentCountValue) + Integer.parseInt(registeredClientsCommentCountValue);
-
-
-
-        //Check
-        Assertions.assertEquals(secondArticleCommentCountMainIntegerValue, commentCountArticlePageIntegerValue, "Main page comments count and article page comments count doesn't macth!");
-        Assertions.assertEquals(secondArticleCommentCountMainIntegerValue, commentsCountCommentsPageIntegerValue, "Main page comments count and comments count on comments page doesn't match!");
-        Assertions.assertEquals(commentsCountCommentsPageIntegerValue, commentCountArticlePageIntegerValue, "Article page comments count and comments count on the comments page doesn't match");
-
+        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentCountArticlePageIntValue, "Main page comments count and article page comments count doesn't macth!");
+//        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentsCountCommentsPageIntValue, "Main page comments count and comments count after title on comments page doesn't match!");
+        Assertions.assertEquals(secondArticleCommentCountMainIntValue, commentsCountArticlePageBottomIntValue, "Main page comments count and comments count on comments page bottom doesn't match!");
+        Assertions.assertEquals(commentsCountCommentsPageIntValue, commentCountArticlePageIntValue, "Article page comments count and comments count on the comments page doesn't match");
+        Assertions.assertEquals(commentsCountCommentsPageIntValue, commentsCountArticlePageBottomIntValue, "Article page bottom comments count and comments count on the comments page doesn't match");
     }
 }
