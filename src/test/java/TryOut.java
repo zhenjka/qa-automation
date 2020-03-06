@@ -1,11 +1,11 @@
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class TryOut {
     private final By COMMENT_COUNT_MAIN_PAGE = By.xpath("(//article)[1]//*[contains(@class,'comment-count')]");
@@ -28,9 +28,9 @@ public class TryOut {
 ////
         try {
             driver.findElement(COMMENT_COUNT_MAIN_PAGE);
-            System.out.println("ElementPresent");
+            String presenceCheck = "Element is not present";
         } catch (NoSuchElementException e) {
-            System.out.println("Element not present");
+            String presenceCheck = "Element is present";
         }
 
 //        if (driver.findElement(COMMENT_COUNT_MAIN_PAGE) != null) {
